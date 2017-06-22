@@ -120,26 +120,14 @@ public class getTrainSet {
     
     
     public static void main(String[] args) throws Exception{
-        
-//        ParsingArguments.parsingArguments(args);
-//            
-//        String loc = config.Configures.DATA_DIR;
-//        String pro = config.Configures.PROJECT;
-//        String repo = config.Configures.REPO_DIR;
-//        
-//	String logRawDir = loc + pro + File.separator + "logRaw";
-//        
-//      
-        
-        String prefix = "../../Datasets_ChangePredict/ant/";
-
-        String logRawDir = prefix+"logRaw/";
+        config.ParsingArguments.parsingArguments(args);     
+        String prefix = config.Configuration.DATA_DIR + config.Configuration.PROJECT + File.separator;
+        String logRawDir = prefix + "logRaw/";
         List<String> files = FileListUnderDirectory.getFileListUnder(logRawDir, ".txt");
         
         String outputDir = prefix+ "input/";
         File dir = new File(outputDir);
         if (!dir.exists()) dir.mkdir();
-        
         
         Calendar cal=Calendar.getInstance();
         //11 is Dec!
@@ -151,10 +139,11 @@ public class getTrainSet {
         Date EndDate = cal.getTime();
         
         for (String filename : files) {
-            
+        	
             File file = new File(filename);
             String outputFilePrefix  = file.getName();
             int pos = outputFilePrefix.lastIndexOf(".");
+            
             if (pos > 0) {
                 outputFilePrefix = outputFilePrefix.substring(0, pos);
             }
@@ -170,8 +159,6 @@ public class getTrainSet {
                 }
             }
         }
-        
-        
         Runtime.getRuntime().exec("./pythonScript/walk.py "+outputDir+" "+prefix+"/trainSet");
 
 	}

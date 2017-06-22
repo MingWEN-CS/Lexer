@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import com.sun.java.swing.plaf.windows.WindowsTreeUI.CollapsedIcon;
 
 import util.FileToLines;
 import util.Pair;
@@ -44,7 +43,7 @@ public class NGramCompare {
 		String title = "gram\tchange";
 		for (String project : projects) {
 			title += "\t" + project;
-			String filename = config.Configuration.data_dir + File.separator + "projects" + File.separator + project + File.separator + targetName;
+			String filename = config.Configuration.DATA_DIR + File.separator + "projects" + File.separator + project + File.separator + targetName;
 			System.out.println(filename);
 			List<HashMap<String, Double>> gramProbs = loadGramProbability(filename);
 			

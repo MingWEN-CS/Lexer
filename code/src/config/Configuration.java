@@ -6,10 +6,11 @@ import java.util.List;
 
 public class Configuration {
 	
-	public static String data_dir = "C:/Users/mwena/Documents/Research/2017SummerA";
-	
+	public static String PROJECT = "Activemq";
+	public static String DATA_DIR = "../../Datasets/";
 	public static HashMap<String, List<String>> projectVersions = new HashMap<String, List<String>>();
 	public static HashMap<String, String> tagToCommits = new HashMap<String, String>();
+	public static boolean updateData = false;
 	
 	static {
 		String[] versions = {"ant_182","ant_183","ant_184","ant_190","ant_193"};
