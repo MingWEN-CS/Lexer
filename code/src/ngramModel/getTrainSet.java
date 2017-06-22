@@ -127,6 +127,7 @@ public class getTrainSet {
         config.ParsingArguments.parsingArguments(args);     
         String prefix = config.Configuration.DATA_DIR + config.Configuration.PROJECT + File.separator;
         String logRawDir = prefix + "logRaw/";
+        System.out.println(logRawDir);
         List<String> files = FileListUnderDirectory.getFileListUnder(logRawDir, ".txt");
         
         String outputDir = prefix+ "input/";
