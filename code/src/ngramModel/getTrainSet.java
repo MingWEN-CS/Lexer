@@ -16,7 +16,7 @@ import util.DataWriter;
  *
  * @author yqtian
  */
-public class PreJavaFile {
+public class getTrainSet {
     
     
     
@@ -159,7 +159,7 @@ public class PreJavaFile {
                 outputFilePrefix = outputFilePrefix.substring(0, pos);
             }
             
-            List<List<String>> strings = PreJavaFile.getAddedCodes(filename, StartDate, EndDate);
+            List<List<String>> strings = getTrainSet.getAddedCodes(filename, StartDate, EndDate);
             
             if(strings!=null){
                 for(int i = 0;i<strings.size();i++){
