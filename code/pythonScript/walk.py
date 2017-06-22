@@ -5,7 +5,8 @@ import os, sys
 def walk_dir(input_dir, output_dir, topdown=True):
     files_list = []
     count = 0
-
+    cwd = os.getcwd()
+    print cwd
     os.system('mkdir -p %s' % output_dir)
     for root, dirs, files in os.walk(input_dir, topdown):
         for name in files:
@@ -15,8 +16,8 @@ def walk_dir(input_dir, output_dir, topdown=True):
                 output = '%s/%d.code.java' % (output_dir, count)
                 print output
                 count += 1
-                os.system("cat %s | ./remccoms3.sed | sed '/^\s*$/d' > %s" % (name, output))
-                os.system('java -jar ../bin/LexJava-1.0.jar %s' % output)
+                os.system("cat %s | ./pythonScript/remccoms3.sed | sed '/^\s*$/d' > %s" % (name, output))
+                os.system('java -jar ./jar/LexJava-1.0.jar %s' % output)
                 files_list.append(name)
 
     fout = open('%s/fileinfo.txt' % output_dir, 'w')
@@ -24,7 +25,7 @@ def walk_dir(input_dir, output_dir, topdown=True):
         print >> fout, '%d\t%s' % (i, files_list[i])
     fout.close()
         
-    os.system('./write_line.py %s' % output_dir)
+    os.system('./pythonScript/write_line.py %s' % output_dir)
 
     print 'all files:', len(files_list)
  
