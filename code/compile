@@ -1,0 +1,1 @@
+javac -d bin -cp ./jar/*:./lib/*:./src ./src/ngramModel/getTrainSet.java
