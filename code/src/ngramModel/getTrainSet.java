@@ -156,7 +156,7 @@ public class getTrainSet {
 
                     String output = outputDir+outputFilePrefix+".java";
                     System.out.println("Writing to file "+ output);
-                    DataWriter.writeList(output, strings.get(i));  
+                    DataWriter.appendList(output, strings.get(i));  
                 }
             }
         }
