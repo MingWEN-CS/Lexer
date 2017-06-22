@@ -172,7 +172,7 @@ public class getTrainSet {
         }
         
         
-        Runtime.getRuntime().exec("python ./pythonScript/walk.py "+outputDir+" "+prefix+"/trainSet");
+        Runtime.getRuntime().exec("./pythonScript/walk.py "+outputDir+" "+prefix+"/trainSet");
 
 	}
 }
