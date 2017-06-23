@@ -63,11 +63,14 @@ public class getTrainSet {
 
                 int isComment = isComment(code);
                 
+                //if(isComment==0)
+                //    code = removeInlineComment(code);
+
                 if(continiousComments == false){
                     
                     if(isComment == 0){
                         if(mark == 1)
-                        addedLinesHunk.add(code);
+                        addedLinesHunk.add(removeInlineComment(code));
                     }
                     else if(isComment == 1 || isComment == 3 )
                        continue;
@@ -122,6 +125,33 @@ public class getTrainSet {
         return isComment;
     }
     
+    public static String removeInlineComment(String string){
+
+        int idx= string.indexOf("//");
+        if(idx != -1){
+            System.out.println("// Before:"+string);
+            string = string.substring(0, idx);
+            System.out.println("End:"+string);
+        }
+        
+        idx= string.indexOf("<!--");
+        if(idx != -1){
+            System.out.println("<!-- Before:"+string);
+            string = string.substring(0, idx);
+            System.out.println("End:"+string);
+        }
+        
+        idx= string.indexOf("/*");
+        if(idx != -1){
+            System.out.println("/* Before:"+string);
+            string = string.substring(0, idx);
+            System.out.println("End:"+string);
+        }
+        
+        
+        
+        return string;
+    }
     
     public static void main(String[] args) throws Exception{
         config.ParsingArguments.parsingArguments(args);     
