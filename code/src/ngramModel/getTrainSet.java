@@ -126,9 +126,10 @@ public class getTrainSet {
     }
     
     public static String removeInlineComment(String string){
-
-        int idx= string.indexOf("//");
-        if(idx != -1){
+        string = string.trim();
+	    int idx = -1;
+        idx= string.indexOf("//");
+        if(idx != -1 && (idx==0 || ( idx!=0 && string.charAt(idx-1)==' '))){
             System.out.println("// Before:"+string);
             string = string.substring(0, idx);
             System.out.println("End:"+string);
