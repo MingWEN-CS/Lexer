@@ -458,6 +458,7 @@ public class DataReader {
 			}
 			description.trim();
 			commit = new Commit(changeSet,authorName,authorEmail,date,description);
+//			System.out.println(description);
 			while (line != null) {
 				if (line.startsWith("diff")) {
 					if ( patch != null) {
@@ -467,16 +468,21 @@ public class DataReader {
 						isContent = false;
 					}
 					command = line;
-				} else if (line.startsWith("---")) {
+				} else if (line.startsWith("--- ")) {
 //					System.out.println(line);
 					try {
-						preFile = line.substring(6);
+						if (line.startsWith("--- a"))
+							preFile = line.substring(6);
+						else preFile = line.substring(5);
+//						System.out.println(preFile);
 					} catch (IndexOutOfBoundsException e) {
 						System.out.println("Exception\t" + line);
 					}
-				} else if (line.startsWith("+++")) {
+				} else if (line.startsWith("+++ ")) {
 					try {
-						postFile = line.substring(6);
+						if (line.startsWith("+++ b"))
+							postFile = line.substring(6);
+						else postFile = line.substring(5);
 					} catch (IndexOutOfBoundsException e) {
 						System.out.println("Exception\t" + line);
 					}
