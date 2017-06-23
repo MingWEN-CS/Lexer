@@ -3,18 +3,26 @@ package ngramModel;
 
 import generics.Commit;
 import generics.Hunk;
+import generics.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import java.util.HashMap;
 import java.io.File;
 import java.util.Calendar;
+import java.util.Collections;
+
 import util.FileListUnderDirectory;
+import util.FileToLines;
 import util.DataReader;
 import util.DataWriter;
 import java.io.BufferedReader;    
 import java.io.IOException;    
 import java.io.InputStream;    
-import java.io.InputStreamReader; 
+import java.io.InputStreamReader;
+import java.nio.file.attribute.FileTime;
+import java.text.SimpleDateFormat; 
 
 /**
  *
@@ -26,17 +34,17 @@ public class getTrainSet {
     
     public static String specialChars =" ,.;()[]{};\"\':<>";
     
-    public static List<List<String>> getAddedCodes(String filename, Date StartDate, Date EndDate){
+    public static List<List<String>> getAddedCodes(String filename){
     
         System.out.println("Processing " + filename);
         Commit commit = DataReader.readOneCommitWithHunkGit(filename);
         
         if (commit == null) 
             return null;
-        if (!(commit.commitTime.after(StartDate) && commit.commitTime.before(EndDate))){
-            System.out.println("Erro Processing " + filename);
-            return null;
-        }
+//        if (!(commit.commitTime.after(StartDate) && commit.commitTime.before(EndDate))){
+//            System.out.println("Erro Processing " + filename);
+//            return null;
+//        }
         
         List<Hunk> hunks = commit.getAllHunks();
 //        System.out.println(hash + "\t" + hunks.size());
@@ -161,64 +169,82 @@ public class getTrainSet {
         System.out.println(logRawDir);
         List<String> files = FileListUnderDirectory.getFileListUnder(logRawDir, ".txt");
         
-        String outputDir = prefix+ "input/";
-        File dir = new File(outputDir);
+        String trainDir = prefix+ "trainInput/";
+        String testDir = prefix + "testInput/";
+        File dir = new File(trainDir);
+        if (!dir.exists()) dir.mkdir();
+        dir = new File(testDir);
         if (!dir.exists()) dir.mkdir();
         
-        Calendar cal=Calendar.getInstance();
-        //11 is Dec!
-        cal.set(2010, 11, 21,0,0);
-        Date StartDate = cal.getTime();
+//        Calendar cal=Calendar.getInstance();
+//        //11 is Dec!
+//        cal.set(2010, 11, 21,0,0);
+//        Date StartDate = cal.getTime();  
+//        cal.set(2013, 11, 23,13,59);
+//        Date EndDate = cal.getTime();
         
-      
-        cal.set(2013, 11, 23,13,59);
-        Date EndDate = cal.getTime();
+        String logOneline = prefix + "logOneline.txt";
+        List<String> lines = FileToLines.fileToLines(logOneline);
+        HashMap<String, Long> commitTime = new HashMap<String, Long>();
+        List<Pair<String, Long>> commitsSorted = new ArrayList<Pair<String,Long>>();
+        SimpleDateFormat format = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
+        for (String line : lines) {
+        	String[] split = line.split("\t");
+        	long time = format.parse(split[2]).getTime();
+        	commitTime.put(split[0], time);
+        	commitsSorted.add(new Pair<String, Long>(split[0], time));
+        }
+        
+        Collections.sort(commitsSorted);
+        // using 90% of the commits for training and the remaining 10% for testing
+        long cutTime = commitsSorted.get(commitsSorted.size() / 10 * 9).getValue();
         
         for (String filename : files) {
-        	
             File file = new File(filename);
             String outputFilePrefix  = file.getName();
             int pos = outputFilePrefix.lastIndexOf(".");
-            
             if (pos > 0) {
                 outputFilePrefix = outputFilePrefix.substring(0, pos);
             }
-            
-            List<List<String>> strings = getTrainSet.getAddedCodes(filename, StartDate, EndDate);
-            
+            if (!commitTime.containsKey(outputFilePrefix))
+            	continue;
+            List<List<String>> strings = getTrainSet.getAddedCodes(filename);
             if(strings!=null){
-                for(int i = 0;i<strings.size();i++){
-
-                    String output = outputDir+outputFilePrefix+".java";
+                for(int i = 0; i < strings.size(); i++){
+                	String output = trainDir + outputFilePrefix + ".java";
+                	if (commitTime.get(outputFilePrefix) > cutTime)
+                		output = testDir + outputFilePrefix + ".java";
                     System.out.println("Writing to file "+ output);
                     DataWriter.appendList(output, strings.get(i));  
                 }
             }
         }
-        Process p = Runtime.getRuntime().exec("./pythonScript/walk.py "+outputDir+" "+prefix+"trainSet");
-
-        try    
-         {    
-            // //执行命令    
-            //  p = Runtime.getRuntime().exec(cmd);    
-            //取得命令结果的输出流    
-             InputStream fis=p.getInputStream();    
-            //用一个读输出流类去读    
-             InputStreamReader isr=new InputStreamReader(fis);    
-            //用缓冲器读行    
+        Process p = Runtime.getRuntime().exec("./pythonScript/walk.py "+ trainDir + " " + prefix + "trainSet");
+        try {     
+             InputStream fis=p.getInputStream(); 
+             InputStreamReader isr=new InputStreamReader(fis);
              BufferedReader br=new BufferedReader(isr);    
-             String line=null;    
-            //直到读完为止    
-            while((line=br.readLine())!=null)    
+             String line=null;  
+             while((line=br.readLine())!=null)    
              {    
                  System.out.println(line);    
              }    
-         }    
-        catch (IOException e)    
-         {    
+        } catch (IOException e) {    
              e.printStackTrace();    
-         } 
-
+        }
+        p = Runtime.getRuntime().exec("./pythonScript/walk.py "+ testDir + " " + prefix + "testSet");
+        try {     
+             InputStream fis=p.getInputStream(); 
+             InputStreamReader isr=new InputStreamReader(fis);
+             BufferedReader br=new BufferedReader(isr);    
+             String line=null;  
+             while((line=br.readLine())!=null)    
+             {    
+                 System.out.println(line);    
+             }    
+        } catch (IOException e) {    
+             e.printStackTrace();    
+        } 
 	}
 }
 
