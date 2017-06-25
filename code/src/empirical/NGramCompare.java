@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-
+import config.ParsingArguments;
 import util.FileToLines;
 import util.Pair;
 import util.WriteLinesToFile;
@@ -43,7 +43,7 @@ public class NGramCompare {
 		String title = "gram\tchange";
 		for (String project : projects) {
 			title += "\t" + project;
-			String filename = config.Configuration.DATA_DIR + File.separator + "projects" + File.separator + project + File.separator + targetName;
+			String filename = config.Configuration.DATA_DIR + File.separator + "Projects" + File.separator + project + File.separator + targetName;
 			System.out.println(filename);
 			List<HashMap<String, Double>> gramProbs = loadGramProbability(filename);
 			
@@ -82,8 +82,48 @@ public class NGramCompare {
 		WriteLinesToFile.writeLinesToFile(saveLines, "grams_compare_3.txt");
 	}
 	
+	public void getGramEntropies() {
+		String[] projects = {"ant_182","ant_183","ant_184","ant_190","ant_193","ant_changes"};
+		String targetName = "all.train.8grams";
+		
+		List<String> saveLines = new ArrayList<String>();
+		for (String project : projects) {
+			saveLines.clear();
+			String filename = config.Configuration.DATA_DIR + File.separator + "projects" + File.separator + project + File.separator + targetName;
+			System.out.println(filename);
+			List<HashMap<String, Double>> gramProbs = loadGramProbability(filename);
+			System.out.println(gramProbs.size());
+			String line = "";
+			int max = gramProbs.get(0).size();
+			line = "1-gram";
+			for (int i = 2; i <= 8; i++) {
+				line += "," + i + "-gram";
+				if (gramProbs.get(i - 1).size() > max)
+					max = gramProbs.get(i - 1).size();
+			}
+			saveLines.add(line);
+			
+			for (int i = 0; i < max; i++) {
+				
+				if (gramProbs.get(0).size() > i)
+					line = gramProbs.get(0).get(i) + "";
+				else line = "";
+				
+				for (int j = 1; j < 8; j++) {
+					if (gramProbs.get(j).size() > i)
+						line += "," + gramProbs.get(j).get(i);
+					else line += ",";
+				}
+				saveLines.add(line);
+			}
+			WriteLinesToFile.writeLinesToFile(saveLines, project + ".txt");
+		}
+	}
+	
 	public static void main(String[] args) {
+		ParsingArguments.parsingArguments(args);
 		NGramCompare nc = new NGramCompare();
-		nc.compareGrams(3);
+		nc.getGramEntropies();
+//		nc.compareGrams(3);
 	}
 }

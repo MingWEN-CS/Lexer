@@ -1,10 +1,19 @@
 package config;
 
+import java.util.List;
+
+import util.FileToLines;
+
 public class ParsingArguments {
 	
 	public static void parsingArguments(String[] args) {
 //		System.out.println(args.length);
 		String pro = config.Configuration.PROJECT;
+		List<String> lines = FileToLines.fileToLines("config");
+		if (lines.size() > 0) {
+			config.Configuration.DATA_DIR = lines.get(0);
+		}
+		
 		
 		boolean isUpdate = false;
 		if (args.length == 0) {
