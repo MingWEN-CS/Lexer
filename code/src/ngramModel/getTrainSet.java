@@ -171,13 +171,15 @@ public class getTrainSet {
         
         String trainDir = prefix+ "trainInput/";
         String testDir = prefix + "testInput/";
+        String allDir = prefix + "allInput/";
         File dir = new File(trainDir);
         if (!dir.exists()) dir.mkdir();
         dir = new File(testDir);
         if (!dir.exists()) dir.mkdir();
-        
+        dir = new File(allDir);
+        if (!dir.exists()) dir.mkdir();
 //        Calendar cal=Calendar.getInstance();
-//        //11 is Dec!
+//        11 is Dec!
 //        cal.set(2010, 11, 21,0,0);
 //        Date StartDate = cal.getTime();  
 //        cal.set(2013, 11, 23,13,59);
@@ -209,17 +211,21 @@ public class getTrainSet {
             if (!commitTime.containsKey(outputFilePrefix))
             	continue;
             List<List<String>> strings = getTrainSet.getAddedCodes(filename);
-            if(strings!=null){
+            if (strings!=null) {
                 for(int i = 0; i < strings.size(); i++){
                 	String output = trainDir + outputFilePrefix + ".java";
                 	if (commitTime.get(outputFilePrefix) > cutTime)
                 		output = testDir + outputFilePrefix + ".java";
                     System.out.println("Writing to file "+ output);
-                    DataWriter.appendList(output, strings.get(i));  
+                    DataWriter.appendList(output, strings.get(i)); 
+                    
+                    output = allDir + outputFilePrefix + ".java";
+                    DataWriter.appendList(output, strings.get(i));
                 }
             }
         }
-        Process p = Runtime.getRuntime().exec("./pythonScript/walk.py "+ trainDir + " " + prefix + "trainSet");
+        
+        Process p = Runtime.getRuntime().exec("./pythonScript/walk.py "+ allDir + " " + prefix + "allSet");
         try {     
              InputStream fis=p.getInputStream(); 
              InputStreamReader isr=new InputStreamReader(fis);
@@ -232,6 +238,21 @@ public class getTrainSet {
         } catch (IOException e) {    
              e.printStackTrace();    
         }
+        //
+        p = Runtime.getRuntime().exec("./pythonScript/walk.py "+ trainDir + " " + prefix + "trainSet");
+        try {     
+             InputStream fis=p.getInputStream(); 
+             InputStreamReader isr=new InputStreamReader(fis);
+             BufferedReader br=new BufferedReader(isr);    
+             String line=null;  
+             while((line=br.readLine())!=null)    
+             {    
+                 System.out.println(line);    
+             }    
+        } catch (IOException e) {    
+             e.printStackTrace();    
+        }
+        
         p = Runtime.getRuntime().exec("./pythonScript/walk.py "+ testDir + " " + prefix + "testSet");
         try {     
              InputStream fis=p.getInputStream(); 
