@@ -34,6 +34,7 @@ public class getNgramDist {
 
     public static List<String> getNgramDist(List<String> tokens, int n) {
 
+        System.out.println("Calc Dist for n = ");
         HashMap<String, Integer> count = new HashMap<>();
         HashMap<String, Integer> firstLoc = new HashMap<>();
         HashMap<String, Integer> lastLoc = new HashMap<>();
@@ -103,8 +104,13 @@ public class getNgramDist {
         for (Pair pair : commitsSorted) {
 
             System.out.println("Processing: " + pair.toString());
-
+            
+            if(map.get(pair.getKey())==null){
+                System.out.println("Waring: No such commit in fileinfo.txt");
+                continue;
+            }
             String filename = map.get(pair.getKey().toString());
+            
             String fileLoc = prefix + "allSet/" + filename + ".code.java.tokens";
 
             System.out.println("\tReading: " + fileLoc);
