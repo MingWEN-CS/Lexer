@@ -35,10 +35,15 @@ public class getNgramDist {
     
     public static String specialChars =" ,.;()[]{};\"\':<>";
     
-    public static List<List<String>> getAddedCodes(String filename){
+    public static List<String> getNgramDist(List<String> filename, int n){
     
-
-                        
+        HashMap<String, Integer> count = new HashMap<>();
+        HashMap<String, Integer> firstLoc = new HashMap<>();
+        HashMap<String, Integer> lastLoc = new HashMap<>();
+                   
+        
+        
+        
         return null;
     } 
 
