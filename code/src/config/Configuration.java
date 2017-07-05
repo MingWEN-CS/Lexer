@@ -6,8 +6,10 @@ import java.util.List;
 
 public class Configuration {
 	
-	public static String PROJECT = "Activemq";
-	public static String DATA_DIR = "C:/Users/mwena/Documents/Research/2017SummerA";
+	public static String PROJECT = "ant";
+	public static String DATA_DIR = "/Users/tyq_mac/Desktop/NetBeans/Datasets/";
+        public static String Repo_DIR = "/Users/tyq_mac/Desktop/NetBeans/Repo/";
+        
 	public static HashMap<String, List<String>> projectVersions = new HashMap<String, List<String>>();
 	public static HashMap<String, String> tagToCommits = new HashMap<String, String>();
 	public static boolean updateData = false;

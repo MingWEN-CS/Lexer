@@ -1,34 +1,27 @@
 package ngramModel;
 
-import generics.Commit;
-import generics.Hunk;
 import generics.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Date;
 import java.util.HashMap;
 import java.io.File;
-import java.util.Calendar;
 import java.util.Collections;
 
-import util.FileListUnderDirectory;
 import util.FileToLines;
-import util.DataReader;
 import util.DataWriter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 
 /**
  *
  * @author yqtian
  */
-public class getNgramDist {
+public class getNgramDistSingleVersion {
 
     public static String specialChars = " ,.;()[]{};\"\':<>";
 
@@ -69,49 +62,46 @@ public class getNgramDist {
     public static void main(String[] args) throws Exception {
         config.ParsingArguments.parsingArguments(args);
         String prefix = config.Configuration.DATA_DIR + config.Configuration.PROJECT + File.separator;
-
-        String logOneline = prefix + "logOneline.txt";
-        List<String> lines = FileToLines.fileToLines(logOneline);
-        List<Pair<String, Long>> commitsSorted = new ArrayList<Pair<String, Long>>();
-        SimpleDateFormat format = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
+        
+        String singleVersionTokensDir = prefix + "singleVersionTokens/";
+        String repo= config.Configuration.Repo_DIR+config.Configuration.PROJECT + File.separator;
+         
+        File dir = new File(singleVersionTokensDir);
+        if (!dir.exists()){ 
+            Process p = Runtime.getRuntime().exec("./pythonScript/walk.py "+ repo + " " + singleVersionTokensDir);
+            try {     
+                 InputStream fis=p.getInputStream(); 
+                 InputStreamReader isr=new InputStreamReader(fis);
+                 BufferedReader br=new BufferedReader(isr);    
+                 String line=null;  
+                 while((line=br.readLine())!=null)    
+                 {    
+                     System.out.println(line);    
+                 }    
+            } catch (IOException e) {    
+                 e.printStackTrace();    
+            }
+        }
+        
+        String mapfile = singleVersionTokensDir + "fileinfo.txt";
+        List<String> lines = FileToLines.fileToLines(mapfile);
+        List<Pair<String, String>> filePairs = new ArrayList<Pair<String, String>>();
+        
         for (String line : lines) {
             String[] split = line.split("\t");
-            long time = format.parse(split[2]).getTime();
-            commitsSorted.add(new Pair<String, Long>(split[0], time));
+            filePairs.add(new Pair<String, String>(split[0], split[1]));
         }
 
-        Collections.sort(commitsSorted);
-
-        String mapfile = prefix + "allSet/fileinfo.txt";
-        List<String> maplines = FileToLines.fileToLines(mapfile);
-        HashMap<String, String> map = new HashMap<String, String>();
-        for (String line : maplines) {
-            String[] split = line.split("\t");
-            String after = split[0];
-
-            File file = new File(split[1]);
-            String before = file.getName();
-            int pos = before.lastIndexOf(".");
-            if (pos > 0) {
-                before = before.substring(0, pos);
-            }
-
-            map.put(before, after);
-        }
-
+        
         List<String> tokensOneList = new ArrayList<String>();
 
-        for (Pair pair : commitsSorted) {
+        for (Pair pair : filePairs) {
 
             System.out.println("Processing: " + pair.toString());
             
-            if(map.get(pair.getKey())==null){
-                System.out.println("Waring: No such commit in fileinfo.txt");
-                continue;
-            }
-            String filename = map.get(pair.getKey().toString());
+            String filename = pair.getKey().toString();
             
-            String fileLoc = prefix + "allSet/" + filename + ".code.java.tokens";
+            String fileLoc = singleVersionTokensDir + filename + ".code.java.tokens";
 
             System.out.println("\tReading: " + fileLoc);
 
@@ -123,25 +113,15 @@ public class getNgramDist {
             }
         }
 
-        String tokensOneFileLoc = prefix + "tokens.txt";
+        String tokensOneFileLoc = prefix + "singleVersionTokens.txt";
         DataWriter.writeList(tokensOneFileLoc, tokensOneList);
 
-//        List<String> a = new ArrayList<String>();
-//        a.add("A");
-//        a.add("B");
-//        a.add("C");
-//        a.add("D");
-//        a.add("1");
-//        a.add("2");
-//        a.add("3");
-//        a.add("4");
-//        a.add("A");
-//        a.add("B");
-//        a.add("C");
-//        a.add("D");
+        String outputDir = prefix + "singleVersionDist/";
+        dir = new File(outputDir);
+        if (!dir.exists()) dir.mkdir();
         for (int i = 1; i <= 10; i++) {
             List<String> dist = getNgramDist(tokensOneList, 8);
-            String outputName = prefix + "tokenDist_" + i + ".txt";
+            String outputName = outputDir + "singleVersion_tokenDist_" + i + ".txt";
             DataWriter.writeList(outputName, dist);
         }
     }
